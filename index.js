@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-07-23 16:04:47
+ * @Last Modified time: 2018-07-23 16:49:46
  */
 
 import axios from 'axios';
@@ -40,7 +40,7 @@ function install(Vue, options) {
       try {
         let _options;
         let formData;
-        if (!options || !options.type ||options.type == 'form-data') {
+        if (!options || !options.type || options.type == 'form-data') {
           _options = {
             header: {
               'Content-Type': 'multipart/form-data'
@@ -76,36 +76,45 @@ function install(Vue, options) {
         biz_content: params
       }, _options).then((resp) => {
         try {
-          const blob = new Blob([resp.data], {
-            type: resp.data.type
-          })
+          parseResponseToJSON(resp.data)
+            .then(response => {
+              resolve(Object.assign(resp, {
+                data: response
+              }));
+            }).catch(err => {
+              // console.log(err);
+              const blob = new Blob([resp.data], {
+                type: resp.data.type
+              })
 
-          var downloadElement = document.createElement('a');　　
-          var href = window.URL.createObjectURL(blob); //创建下载的链接
-          　　
-          downloadElement.href = href;
-          let tmp = decodeURIComponent(resp.headers['content-disposition']);
-          tmp = tmp.match(/filename\*=UTF-8''\W+\.\w+/);
+              var downloadElement = document.createElement('a');　　
+              var href = window.URL.createObjectURL(blob); //创建下载的链接
+              　　
+              downloadElement.href = href;
+              let tmp = decodeURIComponent(resp.headers['content-disposition']);
+              tmp = tmp.match(/filename\*=UTF-8''\W+\.\w+/);
 
-          let filename;
-          if (options && options.filename) {
-            filename = options.filename;
-          } else {
-            filename = +new Date();
-            if (tmp) {
-              filename = tmp[0].replace("filename*=UTF-8''", '');
-            }　　
-          }
-          
-          downloadElement.download = filename; //下载后文件名
-          　　
-          document.body.appendChild(downloadElement);　　
-          downloadElement.click(); //点击下载
-          　　
-          document.body.removeChild(downloadElement); //下载完成移除元素
-          　　
-          window.URL.revokeObjectURL(href); //释放掉blob对象 
-          resolve(resp);
+              let filename;
+              if (options && options.filename) {
+                filename = options.filename;
+              } else {
+                filename = +new Date();
+                if (tmp) {
+                  filename = tmp[0].replace("filename*=UTF-8''", '');
+                }　　
+              }
+
+              downloadElement.download = filename; //下载后文件名
+              　　
+              document.body.appendChild(downloadElement);　　
+              downloadElement.click(); //点击下载
+              　　
+              document.body.removeChild(downloadElement); //下载完成移除元素
+              　　
+              window.URL.revokeObjectURL(href); //释放掉blob对象 
+              resolve(resp);
+            })
+
         } catch (err) {
           reject(err)
         }
@@ -115,8 +124,30 @@ function install(Vue, options) {
     })
   }
 
-
   Vue.prototype.$axios = axios;
+}
+
+
+function parseResponseToJSON(data) {
+  return new Promise((resolve, reject) => {
+    try {
+      let fr = new FileReader();
+      fr.onload = function() {
+        try {
+
+          const tmpResp = JSON.parse(this.result);
+          if (tmpResp.error_code != 0) {
+            resolve(tmpResp);
+          }
+        } catch (err) {
+          reject(err)
+        }
+      }
+      fr.readAsText(data);
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 export default install;
