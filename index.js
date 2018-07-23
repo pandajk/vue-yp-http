@@ -1,8 +1,8 @@
 /*
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
- * @Last Modified by:   panda
- * @Last Modified time: 2018-07-21 13:36:42
+ * @Last Modified by:   PandaJ
+ * @Last Modified time: 2018-07-23 16:04:47
  */
 
 import axios from 'axios';
@@ -67,12 +67,14 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].download = function(method, params, options) {
     return new Promise((resolve, reject) => {
+      let _options = Object.assign({
+        responseType: 'blob'
+      }, options && options.options);
+
       axios.post(options && options.path || _opt.path, {
         method,
         biz_content: params
-      }, {
-        responseType: 'blob'
-      }).then((resp) => {
+      }, _options).then((resp) => {
         try {
           const blob = new Blob([resp.data], {
             type: resp.data.type
@@ -86,7 +88,7 @@ function install(Vue, options) {
           tmp = tmp.match(/filename\*=UTF-8''\W+\.\w+/);
 
           let filename;
-          if (options.filename) {
+          if (options && options.filename) {
             filename = options.filename;
           } else {
             filename = +new Date();
