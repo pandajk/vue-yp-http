@@ -2,8 +2,13 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-07-23 16:49:46
+ * @Last Modified time: 2018-08-08 22:01:49
  */
+
+let is_debug = false;
+if(/ypdebug/.test(navigator.userAgent.toLowerCase())){
+  is_debug = true;
+}
 
 import axios from 'axios';
 
@@ -21,22 +26,49 @@ function install(Vue, options) {
   Vue.prototype[_opt.method] = {};
 
   Vue.prototype[_opt.method].post = function(method, params, options) {
-    return axios.post(options && options.path || _opt.path, {
-      method,
-      biz_content: params
-    });
+    return new Promise((resolve, reject) => {
+      is_debug && console.log('POST', method);
+      is_debug && console.log(params);
+      axios.post(options && options.path || _opt.path, {
+        method,
+        biz_content: params
+      }).then(resp => {
+
+        is_debug && console.log(resp);
+        resolve(resp);
+      }).catch((err, resp) => {
+        if(is_debug){
+
+        }
+        is_debug && console.error(resp);
+        reject(err, resp)
+      })
+    })
   };
 
 
   Vue.prototype[_opt.method].get = function(method, params, options) {
-    return axios.get(options && options.path || _opt.path, {
-      method,
-      biz_content: params
+    return new Promise((resolve, reject) => {
+      is_debug && console.log('GET', method);
+      is_debug && console.log(params);
+      axios.get(options && options.path || _opt.path, {
+        params: {
+          method,
+          biz_content: params
+        }
+      }).then(resp => {
+        is_debug && console.log(resp);
+        resolve(resp);
+      }).catch((err, resp) => {
+        is_debug && console.error(resp);
+        reject(err, resp)
+      })
     });
   };
 
   Vue.prototype[_opt.method].upload = function(params, options) {
     return new Promise((resolve, reject) => {
+      is_debug && console.log('upload', params);
       try {
         let _options;
         let formData;
@@ -60,6 +92,7 @@ function install(Vue, options) {
 
         resolve(axios.post(options && options.path || _opt.path, formData, _options));
       } catch (err) {
+        console.error(resp);
         reject(err)
       }
     })
@@ -67,6 +100,7 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].download = function(method, params, options) {
     return new Promise((resolve, reject) => {
+      is_debug && console.log(method, params);
       let _options = Object.assign({
         responseType: 'blob'
       }, options && options.options);
@@ -116,9 +150,11 @@ function install(Vue, options) {
             })
 
         } catch (err) {
+        console.error(err);
           reject(err)
         }
       }).catch(err => {
+        console.error(err);
         reject(err);
       })
     })
