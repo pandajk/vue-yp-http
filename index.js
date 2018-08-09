@@ -2,11 +2,11 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-08-08 22:01:49
+ * @Last Modified time: 2018-08-09 11:24:06
  */
 
 let is_debug = false;
-if(/ypdebug/.test(navigator.userAgent.toLowerCase())){
+if (/ypdebug/.test(navigator.userAgent.toLowerCase())) {
   is_debug = true;
 }
 
@@ -27,20 +27,22 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].post = function(method, params, options) {
     return new Promise((resolve, reject) => {
-      is_debug && console.log('POST', method);
-      is_debug && console.log(params);
       axios.post(options && options.path || _opt.path, {
         method,
         biz_content: params
       }).then(resp => {
-
-        is_debug && console.log(resp);
+        is_debug && console.group();
+        is_debug && console.log(`%c POST %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+        is_debug && console.log('%c PARAMS ', 'background: #222; color: #fff', params);
+        is_debug && console.log('%c RESPONSE ', 'background: #222; color: yellow', resp);
+        is_debug && console.groupEnd();
         resolve(resp);
       }).catch((err, resp) => {
-        if(is_debug){
-
-        }
-        is_debug && console.error(resp);
+        is_debug && console.group();
+        is_debug && console.error(`%c POST %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+        is_debug && console.error('%c PARAMS ', 'background: #222; color: #fff', params);
+        is_debug && console.error('%c RESPONSE ', 'background: #222; color: yellow', resp);
+        is_debug && console.groupEnd();
         reject(err, resp)
       })
     })
@@ -49,18 +51,25 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].get = function(method, params, options) {
     return new Promise((resolve, reject) => {
-      is_debug && console.log('GET', method);
-      is_debug && console.log(params);
+
       axios.get(options && options.path || _opt.path, {
         params: {
           method,
           biz_content: params
         }
       }).then(resp => {
-        is_debug && console.log(resp);
+        is_debug && console.group();
+        is_debug && console.log(`%c GET %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+        is_debug && console.log('%c PARAMS ', 'background: #222; color: #fff', params);
+        is_debug && console.log('%c RESPONSE ', 'background: #222; color: yellow', resp);
+        is_debug && console.groupEnd();
         resolve(resp);
       }).catch((err, resp) => {
-        is_debug && console.error(resp);
+        iis_debug && console.group();
+        is_debug && console.error(`%c GET %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+        is_debug && console.error('%c PARAMS ', 'background: #222; color: #fff', params);
+        is_debug && console.error('%c RESPONSE ', 'background: #222; color: yellow', resp);
+        is_debug && console.groupEnd();
         reject(err, resp)
       })
     });
@@ -68,7 +77,7 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].upload = function(params, options) {
     return new Promise((resolve, reject) => {
-      is_debug && console.log('upload', params);
+      is_debug && console.log(`%c UPLOAD `, 'background: #222; color: #bada55', params);
       try {
         let _options;
         let formData;
@@ -90,9 +99,10 @@ function install(Vue, options) {
 
         _options = Object.assign(_options, options.options);
 
+
         resolve(axios.post(options && options.path || _opt.path, formData, _options));
       } catch (err) {
-        console.error(resp);
+        is_debug && console.error(`%c UPLOAD `, 'background: #222; color: #bada55', resp);
         reject(err)
       }
     })
@@ -100,7 +110,9 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method].download = function(method, params, options) {
     return new Promise((resolve, reject) => {
-      is_debug && console.log(method, params);
+      is_debug && console.log(`%c DOWNLOAD %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+      is_debug && console.log('%c PARAMS ', 'background: #222; color: #fff', params);
+
       let _options = Object.assign({
         responseType: 'blob'
       }, options && options.options);
@@ -112,11 +124,13 @@ function install(Vue, options) {
         try {
           parseResponseToJSON(resp.data)
             .then(response => {
+              is_debug && console.log('%c DOWNLOAD RESPONSE ', 'background: #222; color: yellow', response);
+
+
               resolve(Object.assign(resp, {
                 data: response
               }));
             }).catch(err => {
-              // console.log(err);
               const blob = new Blob([resp.data], {
                 type: resp.data.type
               })
@@ -150,11 +164,12 @@ function install(Vue, options) {
             })
 
         } catch (err) {
-        console.error(err);
+          is_debug && console.error('%c DOWNLOAD ', 'background: #222; color: yellow', err);
           reject(err)
         }
       }).catch(err => {
-        console.error(err);
+        is_debug && console.error('%c DOWNLOAD ', 'background: #222; color: yellow', err);
+
         reject(err);
       })
     })
