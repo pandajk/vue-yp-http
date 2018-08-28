@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-08-09 11:24:06
+ * @Last Modified time: 2018-08-28 16:30:18
  */
 
 let is_debug = false;
@@ -25,7 +25,7 @@ function install(Vue, options) {
 
   Vue.prototype[_opt.method] = {};
 
-  Vue.prototype[_opt.method].post = function(method, params, options) {
+  const post = function(method, params, options) {
     return new Promise((resolve, reject) => {
       axios.post(options && options.path || _opt.path, {
         method,
@@ -49,7 +49,7 @@ function install(Vue, options) {
   };
 
 
-  Vue.prototype[_opt.method].get = function(method, params, options) {
+  const get = function(method, params, options) {
     return new Promise((resolve, reject) => {
 
       axios.get(options && options.path || _opt.path, {
@@ -75,7 +75,7 @@ function install(Vue, options) {
     });
   };
 
-  Vue.prototype[_opt.method].upload = function(params, options) {
+  const upload = function(params, options) {
     return new Promise((resolve, reject) => {
       is_debug && console.log(`%c UPLOAD `, 'background: #222; color: #bada55', params);
       try {
@@ -108,7 +108,7 @@ function install(Vue, options) {
     })
   }
 
-  Vue.prototype[_opt.method].download = function(method, params, options) {
+  const download = function(method, params, options) {
     return new Promise((resolve, reject) => {
       is_debug && console.log(`%c DOWNLOAD %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
       is_debug && console.log('%c PARAMS ', 'background: #222; color: #fff', params);
@@ -175,10 +175,23 @@ function install(Vue, options) {
     })
   }
 
+  Vue.prototype[_opt.method].get = get;
+  Vue.prototype[_opt.method].post = post;
+  Vue.prototype[_opt.method].upload = upload;
+  Vue.prototype[_opt.method].download = download;
+
   Vue.prototype.$axios = axios;
+
+  Vue.yphttp = {
+    get: get,
+    post: post,
+    upload: upload,
+    download: download
+  };
 }
 
-
+// for download method
+// parse blob type response to json
 function parseResponseToJSON(data) {
   return new Promise((resolve, reject) => {
     try {
