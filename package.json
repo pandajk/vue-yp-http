@@ -1,10 +1,9 @@
 {
   "name": "vue-yp-http",
-  "version": "1.0.17",
-  "main": "index.js",
+  "version": "1.0.18",
+  "main": "dist/index.js",
   "license": "MIT",
   "author": "PandaJ",
-  "main": "dist/index.js",
   "module": "dist/index.js",
   "unpkg": "dist/index.js",
   "jsdelivr": "dist/index.js",
@@ -30,6 +29,8 @@
     "webpack-cli": "^3.1.0"
   },
   "keywords": [
-    "vue", "axios", "http"
+    "vue",
+    "axios",
+    "http"
   ]
 }
