@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-08-28 16:30:18
+ * @Last Modified time: 2018-09-27 15:42:13
  */
 
 let is_debug = false;
@@ -139,16 +139,16 @@ function install(Vue, options) {
               var href = window.URL.createObjectURL(blob); //创建下载的链接
               　　
               downloadElement.href = href;
-              let tmp = decodeURIComponent(resp.headers['content-disposition']);
-              tmp = tmp.match(/filename\*=UTF-8''\W+\.\w+/);
 
               let filename;
               if (options && options.filename) {
                 filename = options.filename;
               } else {
                 filename = +new Date();
+                let tmp = decodeURIComponent(resp.headers['content-disposition']);
+                tmp = tmp.match(/filename\*?=(UTF-8'')?(\S*|\s*)*\.\w+/);
                 if (tmp) {
-                  filename = tmp[0].replace("filename*=UTF-8''", '');
+                  filename = tmp[0].replace(/filename\*?=(UTF-8'')?/, '');
                 }　　
               }
 

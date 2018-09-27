@@ -9,9 +9,11 @@
   "jsdelivr": "dist/index.min.js",
   "homepage": "https://github.com/pandajk/vue-yp-http",
   "files": [
-    "dist/*.js"
+    "dist/*.js",
+    "index.js"
   ],
   "scripts": {
+    "prepublish": "npm run build",
     "build": "rm -rf ./dist/* && ./node_modules/.bin/babel index.js --out-file ./dist/index.min.js --minified"
   },
   "dependencies": {
