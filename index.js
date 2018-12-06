@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-09-27 15:42:13
+ * @Last Modified time: 2018-12-06 17:36:14
  */
 
 let is_debug = false;
@@ -131,34 +131,37 @@ function install(Vue, options) {
                 data: response
               }));
             }).catch(err => {
+              // console.log(err);
               const blob = new Blob([resp.data], {
                 type: resp.data.type
               })
 
-              var downloadElement = document.createElement('a');　　
+              var downloadElement = document.createElement('a');
               var href = window.URL.createObjectURL(blob); //创建下载的链接
-              　　
-              downloadElement.href = href;
 
+              downloadElement.href = href;
               let filename;
-              if (options && options.filename) {
-                filename = options.filename;
+              let tmp = decodeURIComponent(resp.headers['content-disposition']);
+
+              if (tmp.match(/filename\*=UTF-8''.+/g)) {
+                filename = tmp.match(/filename\*=UTF-8''.+/g)[0].replace("filename*=UTF-8''", '');
+              } else if (tmp.match(/filename=.+;/g)) {
+                filename = tmp.match(/filename=.+;/g)[0].replace(/(filename=|;)/g, '');
               } else {
                 filename = +new Date();
-                let tmp = decodeURIComponent(resp.headers['content-disposition']);
-                tmp = tmp.match(/filename\*?=(UTF-8'')?(\S*|\s*)*\.\w+/);
-                if (tmp) {
-                  filename = tmp[0].replace(/filename\*?=(UTF-8'')?/, '');
-                }　　
+              }
+
+              if (options && options.filename) {
+                filename = options.filename;
               }
 
               downloadElement.download = filename; //下载后文件名
-              　　
-              document.body.appendChild(downloadElement);　　
+
+              document.body.appendChild(downloadElement);
               downloadElement.click(); //点击下载
-              　　
+
               document.body.removeChild(downloadElement); //下载完成移除元素
-              　　
+
               window.URL.revokeObjectURL(href); //释放掉blob对象 
               resolve(resp);
             })
