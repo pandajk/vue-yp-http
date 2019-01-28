@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2018-12-06 17:36:14
+ * @Last Modified time: 2019-01-28 10:03:39
  */
 
 let is_debug = false;
@@ -30,6 +30,10 @@ function install(Vue, options) {
       axios.post(options && options.path || _opt.path, {
         method,
         biz_content: params
+      }, {
+        headers: {
+          method
+        }
       }).then(resp => {
         is_debug && console.group();
         is_debug && console.log(`%c POST %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
@@ -56,6 +60,10 @@ function install(Vue, options) {
         params: {
           method,
           biz_content: params
+        }
+      }, {
+        headers: {
+          method
         }
       }).then(resp => {
         is_debug && console.group();
