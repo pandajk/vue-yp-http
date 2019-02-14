@@ -66,3 +66,10 @@ Performing a `DOWNLOAD`  `POST` request, `$http.download(method,{params}, {optio
         });
 ```
 
+Performing a `DOWNLOADFILE`  `POST` request, `$http.downloadFile(method,{params})`, use post method to submit a form, than download a file
+```
+    this.$http.downloadFile(
+        method, // biz_method
+        params, // biz_content
+    )
+```
