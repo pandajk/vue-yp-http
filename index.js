@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2019-01-28 10:03:39
+ * @Last Modified time: 2019-02-14 15:33:52
  */
 
 let is_debug = false;
@@ -114,7 +114,7 @@ function install(Vue, options) {
         reject(err)
       }
     })
-  }
+  };
 
   const download = function(method, params, options) {
     return new Promise((resolve, reject) => {
@@ -184,12 +184,28 @@ function install(Vue, options) {
         reject(err);
       })
     })
-  }
+  };
+
+  const downloadFile = function(method, params, options) {
+    return new Promise((resolve, reject) => {
+      is_debug && console.log(`%c DOWNLOADFILE %c ${method} `, 'background: #222; color: #bada55', 'background: green; color: white');
+      is_debug && console.log('%c PARAMS ', 'background: #222; color: #fff', params);
+
+      const formData = {};
+      formData['method'] = method;
+      Object.keys(params).map(key=>{
+        formData[`biz_content[${key}]`] = params[key];
+      });
+      mockForm('/api', 'POST', formData);
+      resolve('trigger form submit');
+    })
+  };
 
   Vue.prototype[_opt.method].get = get;
   Vue.prototype[_opt.method].post = post;
   Vue.prototype[_opt.method].upload = upload;
   Vue.prototype[_opt.method].download = download;
+  Vue.prototype[_opt.method].downloadFile = downloadFile;
 
   Vue.prototype.$axios = axios;
 
@@ -197,7 +213,8 @@ function install(Vue, options) {
     get: get,
     post: post,
     upload: upload,
-    download: download
+    download: download,
+    downloadFile: downloadFile
   };
 }
 
@@ -223,6 +240,23 @@ function parseResponseToJSON(data) {
       reject(err)
     }
   })
+}
+
+function mockForm(url, method, formdata) {
+  const form = document.createElement('Form');
+  // form.setAttribute('class', 'invisible-form');
+  form.setAttribute('action', url);
+  form.setAttribute('method', method);
+  Object.keys(formdata).map(key => {
+    const input = document.createElement('Input');
+    input.setAttribute('name', key);
+    input.setAttribute('value', formdata[key]);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
 }
 
 export default install;
