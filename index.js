@@ -2,7 +2,7 @@
  * @Author: panda
  * @Date:   2018-07-10 15:33:18
  * @Last Modified by:   PandaJ
- * @Last Modified time: 2019-02-14 15:33:52
+ * @Last Modified time: 2019-02-14 16:06:36
  */
 
 let is_debug = false;
@@ -193,9 +193,8 @@ function install(Vue, options) {
 
       const formData = {};
       formData['method'] = method;
-      Object.keys(params).map(key=>{
-        formData[`biz_content[${key}]`] = params[key];
-      });
+      Object.assign(formData, parseObjectToForm(params));
+
       mockForm('/api', 'POST', formData);
       resolve('trigger form submit');
     })
@@ -226,7 +225,6 @@ function parseResponseToJSON(data) {
       let fr = new FileReader();
       fr.onload = function() {
         try {
-
           const tmpResp = JSON.parse(this.result);
           if (tmpResp.error_code != 0) {
             resolve(tmpResp);
@@ -240,6 +238,23 @@ function parseResponseToJSON(data) {
       reject(err)
     }
   })
+}
+
+function parseObjectToForm(data) {
+  const _form = {};
+  const _setKeyValue = function (prefix, parent) {
+    
+    Object.keys(parent).map(key => {
+      // value is Object
+      if(Object.prototype.toString.call(parent[key]) === '[object Object]'){
+        _setKeyValue(`${prefix}[${key}]`, parent[key]);
+      }else{
+        _form[`${prefix}[${key}]`] = parent[key];
+      }
+    });
+  }
+  _setKeyValue('biz_content', data);
+  return _form;
 }
 
 function mockForm(url, method, formdata) {
